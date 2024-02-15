@@ -38,8 +38,7 @@ def test_product():
     product4.price = 800  # Попытка повысить цену
     assert product4.price == 600  # Цена не должна измениться
 
-if __name__ == "main__":
+if __name__ == "__main__":
     test_category()
     test_product()
     print("Все тесты пройдены успешно")
-
