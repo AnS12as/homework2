@@ -1,36 +1,45 @@
-import unittest
 from main import Category, Product
 
 
-class TestCategoryAndProduct(unittest.TestCase):
-
-    def test_category_initialization(self):
-        category = Category("Electronics", "Electronics category")
-        self.assertEqual(category.name, "Electronics")
-        self.assertEqual(category.description, "Electronics category")
-        self.assertEqual(category.products, [])
-
-    def test_product_initialization(self):
-        product = Product("Laptop", "High-performance laptop", 987.39, 10)
-        self.assertEqual(product.name, "Laptop")
-        self.assertEqual(product.description, "High-performance laptop")
-        self.assertEqual(product.price, 987.39)
-        self.assertEqual(product.quantity, 10)
-
-    def test_count_products(self):
-        category = Category("Electronics", "Electronics category")
-        category.add_product(Product("Laptop", "High-performance laptop", 987.39, 10))
-        category.add_product(Product("Smartphone", "Latest smartphone model", 599.99, 20))
-        self.assertEqual(len(category.products), 2)
-
-    def test_count_categories(self):
-        # Создаем несколько категорий
-        Category("Electronics", "Electronics category")
-        Category("Clothing", "Clothing category")
-        Category("Books", "Books category")
-        self.assertEqual(Category.total_categories, 4)
+def test_category():
+    category = Category("Электроника", "Товары электроники")
+    assert category.name == "Электроника"
+    assert category.description == "Товары электроники"
+    category.add_product("Смартфон")
+    category.add_product("Ноутбук")
+    assert category.get_products() == "Смартфон, 80 руб. Остаток: 15 шт.\nНоутбук, 80 руб. Остаток: 15 шт.\n"
 
 
-if __name__ == '__main__':
-    unittest.main()
+def test_product():
+    product = Product("Смартфон", "Мощный смартфон", 500, 10)
+    assert product.name == "Смартфон"
+    assert product.description == "Мощный смартфон"
+    assert product.price == 500
+    assert product.quantity == 10
+    product.price = 600
+    assert product.price == 600
+    product.price = -100
+    assert product.price == 600  # Цена не должна измениться
+    product.price = 400
+    assert product.price == 400
+
+    products = []
+    product1 = Product.create_product("Смартфон", "Мощный смартфон", 500, 10, products)
+    products.append(product1)
+    product2 = Product.create_product("Ноутбук", "Легкий и компактный ноутбук", 800, 5, products)
+    products.append(product2)
+    product3 = Product.create_product("Смартфон", "Мощный смартфон", 600, 8, products)
+    assert product3.quantity == 18
+    assert product3.price == 600
+
+    product4 = Product("Планшет", "Мощный планшет", 700, 5)
+    product4.price = 600  # Понижаем цену
+    assert product4.price == 600
+    product4.price = 800  # Попытка повысить цену
+    assert product4.price == 600  # Цена не должна измениться
+
+if __name__ == "main__":
+    test_category()
+    test_product()
+    print("Все тесты пройдены успешно")
 
