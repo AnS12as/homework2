@@ -1,33 +1,28 @@
 class Category:
-    total_categories = 0
-    total_unique_products = set()
-
-    def __init__(self, name: str, description: str):
+    def __init__(self, name):
+        self.__products = []
         self.name = name
-        self.description = description
-        self.__products = []  # делаем список приватным
-        Category.total_categories += 1
 
     def add_product(self, product):
         self.__products.append(product)
 
-    def get_products(self):
+    @property
+    def products(self):
+        return self.__products
+
+    def get_products_info(self):
         products_info = ""
         for product in self.__products:
-            products_info += f"{product}, 80 руб. Остаток: 15 шт.\n"
+            products_info += f"{product.name}, {product.price} руб. Остаток: {product.stock} шт.\n"
+        return products_info
 
-category = Category("Электроника", "Товары электроники")
-category.add_product("Смартфон")
-category.add_product("Ноутбук")
-print(category.get_products())
 
 
 class Product:
-    def __init__(self, name: str, description: str, price: float, quantity: int):
+    def __init__(self, name: str, price: str, stock: int):
         self.name = name
-        self.description = description
         self.__price = price
-        self.quantity = quantity
+        self.stock = stock
 
     @property
     def price(self):
@@ -36,44 +31,27 @@ class Product:
     @price.setter
     def price(self, new_price):
         if new_price <= 0:
-            print("Цена введена некорректная")
-        else:
-            if new_price < self.__price:
-                confirm = input("Вы уверены, что хотите понизить цену? (y/n): ")
-                if confirm.lower() == "y":
-                    self.__price = new_price
-                    print("Цена успешно понижена")
-                else:
-                    print("Действие отменено пользователем")
-            else:
-                self.__price = new_price
+            print("Ошибка: Цена должна быть больше нуля.")
+            return
+        elif new_price < self.__price:
+            confirmation = input("Вы уверены, что хотите понизить цену? (y/n): ")
+            if confirmation.lower() != 'y':
+                print("Действие отменено.")
+                return
 
-
+            self.__price = new_price
 
     @classmethod
-    def create_product(cls, name: str, description: str, price: float, quantity: int, product_list):
-        for product in product_list:
-            if product.name == name:
-                product.quantity += quantity
-                product.price = max(product.price, price)
-                return product
+    def create_product(cls, name, price, stock, product_list):
+        for existing_product in product_list:
+            if existing_product.name == name:
+                existing_product.stock += stock
+                existing_product.price = max(existing_product.price, price)
+                return existing_product
+            return cls(name, price, stock)
 
-        return cls(name, description, price, quantity)
 
-products = []
-product1 = Product.create_product("Смартфон", "Мощный смартфон", 500, 10, products)
-products.append(product1)
-product2 = Product.create_product("Ноутбук", "Легкий и компактный ноутбук", 800, 5, products)
-products.append(product2)
-product3 = Product.create_product("Смартфон", "Мощный смартфон", 600, 8, products)
-if product3 not in products:
-    products.append(product3)
-
-product = Product("Смартфон", "Мощный смартфон", 500, 10)
+product = Product("Laptop", 1000, 10)
 print(product.price)
-product.price = 600
-print(product.price)
-product.price = -100
-print(product.price)
-product.price = 400
-print(product.price)
+product.price = 900
+product.price = 1000
