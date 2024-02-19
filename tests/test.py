@@ -3,37 +3,35 @@ from main import Category, Product
 
 
 class TestCategory(unittest.TestCase):
-    def test_add_product(self):
+    class TestCategory(unittest.TestCase):
+        def test_string_representation(self):
+            category = Category("Электроника")
+            category.add_product(Product("Смартфон", 500, 10))
+            category.add_product(Product("Ноутбук", 800, 5))
+            expected_string = "Электроника, количество продуктов: 2"
+            self.assertEqual(str(category), expected_string)
+
+    def test_iteration(self):
         category = Category("Электроника")
-        product1 = Product("Ноутбук", 1000, 10)
-        product2 = Product("Смартфон", 800, 5)
-
-        category.add_product(product1)
-        category.add_product(product2)
-
-        expected_output = "Ноутбук, 1000 руб. Остаток: 10 шт.\nСмартфон, 800 руб. Остаток: 5 шт.\n"
-        self.assertEqual(category.get_products_info(), expected_output)
-
-    def test_get_products_info(self):
-        category = Category("Electronics")
-        product1 = Product("Laptop", 1000, 10)
-        product2 = Product("Smartphone", 800, 5)
-
-        category.add_product(product1)
-        category.add_product(product2)
+        category.add_product(Product("Смартфон", 500, 10))
+        category.add_product(Product("Ноутбук", 800, 5))
+        expected_products = ["Смартфон, 500 руб. Остаток: 10 шт.", "Ноутбук, 800 руб. Остаток: 5 шт."]
+        actual_products = [str(product) for product in category]
+        self.assertEqual(actual_products, expected_products)
 
 
 class TestProduct(unittest.TestCase):
-    def test_create_product(self):
-        product1 = Product("Ноутбук", 1000, 10)
-        product2 = Product("Смартфон", 800, 5)
+    def test_string_representation(self):
+        product = Product("Смартфон", 500, 10)
+        expected_string = "Смартфон, 500 руб. Остаток: 10 шт."
+        self.assertEqual(str(product), expected_string)
 
-        product_list = [product1, product2]
-
-        # Создание нового товара с уже существующим именем
-        new_product = Product.create_product("Ноутбук", 1200, 5, product_list)
-        self.assertEqual(new_product.stock, 15)
-        self.assertEqual(new_product.price, 1000)
+    def test_addition(self):
+        product1 = Product("Смартфон", 500, 10)
+        product2 = Product("Ноутбук", 800, 5)
+        result = product1 + product2
+        expected_result = Product("Combined Product", 500 * 10 + 800 * 5, 10 + 5)
+        self.assertEqual(str(result), str(expected_result))
 
 
 if __name__ == '__main__':
