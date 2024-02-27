@@ -13,6 +13,11 @@ class Product:
         total_price = self.price + other.price
         return f"Total price: ${total_price}"
 
+    def add_to_category(self, category):
+        if not isinstance(category, Product):
+            raise TypeError("В категорию можно добавлять только экземпляры продукта или его подклассов.")
+        self.category = category
+
 
 class Smartphone(Product):
     def __init__(self, name, price, category, performance, model, memory, color):
