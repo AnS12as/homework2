@@ -1,6 +1,23 @@
 class Category:
-    def __init__(self, name):
+    total_categories = 0
+    total_unique_products = set()
+
+    def __init__(self, name: str, description: str):
         self.name = name
+        self.description = description
+        self.__products = []
+        Category.total_categories += 1
+
+    def add_product(self, product):
+        if not isinstance(product, Product):
+            raise TypeError("Можно добавлять только объекты класса Product или его наследников")
+        self.__products.append(product)
+
+    def get_products(self):
+        products_info = ""
+        for product in self.__products:
+            products_info += f"{product.name}, {product.price} руб. Остаток: {product.quantity} шт.\n"
+        return products_info
 
 
 class Product:
@@ -17,11 +34,6 @@ class Product:
             raise TypeError(f"Can't add {type(other)} to {self.__class__}")
         total_price = self.price + other.price
         return f"Total price: ${total_price}"
-
-    def add_to_category(self, category):
-        if not isinstance(category, Product):
-            raise TypeError("В категорию можно добавлять только экземпляры продукта или его подклассов.")
-        self.category = category
 
 
 class Smartphone(Product):

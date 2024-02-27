@@ -1,56 +1,40 @@
 import pytest
 
-
-class Product:
-    def __init__(self, name, price, category):
-        self.name = name
-        self.price = price
-        self.category = category
-
-    def __str__(self):
-        return f"{self.name} - ${self.price} - {self.category}"
-
-    def __add__(self, other):
-        if not isinstance(other, self.__class__):
-            raise TypeError(f"Can't add {type(other)} to {self.__class__}")
-        total_price = self.price + other.price
-        return f"Total price: ${total_price}"
+from main import Category, Smartphone, Grass
 
 
-class Smartphone(Product):
-    def __init__(self, name, price, category, performance, model, memory, color):
-        super().__init__(name, price, category)
-        self.performance = performance
-        self.model = model
-        self.memory = memory
-        self.color = color
+@pytest.fixture
+def category():
+    return Category("Тестовая категория", "Описание тестовой категории")
 
 
-class Grass(Product):
-    def __init__(self, name, price, category, country_of_origin, germination_period, color):
-        super().__init__(name, price, category)
-        self.country_of_origin = country_of_origin
-        self.germination_period = germination_period
-        self.color = color
+def test_add_product_to_category(category):
+    smartphone = Smartphone("iPhone", 999, "Электроника", "Высокий", "12 Pro", "256GB", "Серебро")
+    category.add_product(smartphone)
+    assert len(category.products) == 1
+    assert category.products[0] == smartphone
 
 
-def test_add_same_type():
-    smartphone1 = Smartphone("iPhone", 999, "Электроника", "Высокий", "12 Pro", "256GB", "Серебро")
-    smartphone2 = Smartphone("Samsung Galaxy", 899, "Электроника", "Высокий", "S21", "128GB", "Черный")
-    assert smartphone1 + smartphone2 == "Total price: $1898"
+def test_get_products(category):
+    smartphone = Smartphone("iPhone", 999, "Электроника", "Высокий", "12 Pro", "256GB", "Серебро")
+    grass = Grass("Kentucky Bluegrass", 10, "Садоводство", "USA", "14 days", "Зеленый")
+    category.add_product(smartphone)
+    category.add_product(grass)
+    expected_output = f"{smartphone.name}, {smartphone.price} руб. Остаток: {smartphone.quantity} шт.\n{grass.name}, {grass.price} руб. Остаток: {grass.quantity} шт.\n"
+    assert category.get_products() == expected_output
 
 
-def test_add_different_types():
+def test_add_non_product_to_category(category):
+    with pytest.raises(TypeError):
+        category.add_product("Не продукт")
+
+
+def test_add_different_product_to_category(category):
     smartphone = Smartphone("iPhone", 999, "Электроника", "Высокий", "12 Pro", "256GB", "Серебро")
     grass = Grass("Kentucky Bluegrass", 10, "Садоводство", "USA", "14 days", "Зеленый")
     with pytest.raises(TypeError):
-        smartphone + grass
-
-    with pytest.raises(TypeError):
-        grass + smartphone
+        category.add_product(smartphone + grass)
 
 
 if __name__ == "__main__":
-    test_add_same_type()
-    test_add_different_types()
     print("Все тесты пройдены!")
