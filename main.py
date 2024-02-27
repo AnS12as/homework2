@@ -1,3 +1,8 @@
+class Category:
+    def __init__(self, name):
+        self.name = name
+
+
 class Product:
     def __init__(self, name, price, category):
         self.name = name
@@ -51,6 +56,3 @@ try:
     print(smartphone1 + grass1)
 except TypeError as e:
     print(e)
-
-
-
