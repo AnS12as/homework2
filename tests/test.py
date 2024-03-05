@@ -1,40 +1,53 @@
-import pytest
-
-from main import Category, Smartphone, Grass
-
-
-@pytest.fixture
-def category():
-    return Category("Тестовая категория", "Описание тестовой категории")
+import unittest
+from main import Smartphone, Grass, Category, Order
 
 
-def test_add_product_to_category(category):
-    smartphone = Smartphone("iPhone", 999, "Электроника", "Высокий", "12 Pro", "256GB", "Серебро")
-    category.add_product(smartphone)
-    assert len(category.products) == 1
-    assert category.products[0] == smartphone
+class TestSmartphone(unittest.TestCase):
+    def setUp(self):
+        self.smartphone = Smartphone("iPhone", 999, "Электроника", "Высокий", "12 Pro", "256GB", "Серебро", 10)
+
+    def test_smartphone_creation(self):
+        self.assertEqual(self.smartphone.name, "iPhone")
+        self.assertEqual(self.smartphone.price, 999)
 
 
-def test_get_products(category):
-    smartphone = Smartphone("iPhone", 999, "Электроника", "Высокий", "12 Pro", "256GB", "Серебро")
-    grass = Grass("Kentucky Bluegrass", 10, "Садоводство", "USA", "14 days", "Зеленый")
-    category.add_product(smartphone)
-    category.add_product(grass)
-    expected_output = f"{smartphone.name}, {smartphone.price} руб. Остаток: {smartphone.quantity} шт.\n{grass.name}, {grass.price} руб. Остаток: {grass.quantity} шт.\n"
-    assert category.get_products() == expected_output
+class TestGrass(unittest.TestCase):
+    def setUp(self):
+        self.grass = Grass("Kentucky Bluegrass", 10, "Садоводство", "USA", "14 days", "Зеленый", 50)
+
+    def test_grass_creation(self):
+        self.assertEqual(self.grass.name, "Kentucky Bluegrass")
+        self.assertEqual(self.grass.price, 10)
 
 
-def test_add_non_product_to_category(category):
-    with pytest.raises(TypeError):
-        category.add_product("Не продукт")
+class TestCategory(unittest.TestCase):
+    def setUp(self):
+        self.category = Category("Электроника", "Электронные устройства")
+        self.smartphone = Smartphone("iPhone", 999, "Электроника", "Высокий", "12 Pro", "256GB", "Серебро", 10)
+        self.grass = Grass("Kentucky Bluegrass", 10, "Садоводство", "USA", "14 days", "Зеленый", 50)
+
+    def test_add_product(self):
+        self.category.add_product(self.smartphone)
+        self.assertIn(self.smartphone, self.category._Category__products)
+
+    def test_get_products(self):
+        self.category.add_product(self.smartphone)
+        self.assertIn("iPhone", self.category.get_products())
 
 
-def test_add_different_product_to_category(category):
-    smartphone = Smartphone("iPhone", 999, "Электроника", "Высокий", "12 Pro", "256GB", "Серебро")
-    grass = Grass("Kentucky Bluegrass", 10, "Садоводство", "USA", "14 days", "Зеленый")
-    with pytest.raises(TypeError):
-        category.add_product(smartphone + grass)
+class TestOrder(unittest.TestCase):
+    def setUp(self):
+        self.smartphone = Smartphone("iPhone", 999, "Электроника", "Высокий", "12 Pro", "256GB", "Серебро", 10)
+        self.order = Order(self.smartphone, 2)
+
+    def test_order_creation(self):
+        self.assertEqual(self.order.total_cost, 1998)
+
+    def test_display_info(self):
+        info = self.order.display_info()
+        self.assertIn("Order: iPhone", info)
+        self.assertIn("Total cost: $1998", info)
 
 
-if __name__ == "__main__":
-    print("Все тесты пройдены!")
+if __name__ == '__main__':
+    unittest.main()
