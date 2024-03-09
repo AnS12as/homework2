@@ -45,8 +45,8 @@ class TestOrder(unittest.TestCase):
 
     def test_display_info(self):
         info = self.order.display_info()
-        self.assertIn("Order: iPhone", info)
-        self.assertIn("Total cost: $1998", info)
+        self.assertIn("Заказ: iPhone", info)
+        self.assertIn("Общая стоимость: $1998", info)
 
 
 if __name__ == '__main__':

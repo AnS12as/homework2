@@ -4,6 +4,19 @@ class ObjectCreationInfoMixin:
     def __repr__(self):
         return f"{self.__class__.__name__}('{self.name}', {self.price}, '{self.category}')"
 
+class Product(ABC, ObjectCreationInfoMixin):
+    def __init__(self, name, price, category):
+        self.name = name
+        self.price = price
+        self.category = category
+
+    @abstractmethod
+    def get_description(self):
+        pass
+
+    def __str__(self):
+        return f"{self.name} - ${self.price} - {self.category}"
+
 class Category:
     total_categories = 0
     total_unique_products = set()
@@ -19,27 +32,13 @@ class Category:
             raise TypeError("Можно добавлять только объекты класса Product или его наследников")
         self.__products.append(product)
 
+
     def get_products(self):
         products_info = ""
         for product in self.__products:
             products_info += f"{product.name}, {product.price} руб. Остаток: {product.quantity} шт.\n"
         return products_info
 
-
-class Product(ABC, ObjectCreationInfoMixin):
-    def __init__(self, name, price, category):
-        self.name = name
-        self.price = price
-        self.category = category
-
-    def __str__(self):
-        return f"{self.name} - ${self.price} - {self.category}"
-
-    def __add__(self, other):
-        if not isinstance(other, self.__class__):
-            raise TypeError(f"Can't add {type(other)} to {self.__class__}")
-        total_price = self.price + other.price
-        return f"Total price: ${total_price}"
 
 
 class Smartphone(Product):
@@ -51,8 +50,7 @@ class Smartphone(Product):
         self.memory = memory
         self.quantity = quantity
 
-
-    def __str__(self):
+    def get_description(self):
         return f"{self.name} - ${self.price} - {self.category} - {self.model} - {self.color}"
 
 
@@ -64,7 +62,7 @@ class Grass(Product):
         self.color = color
         self.quantity = quantity
 
-    def __str__(self):
+    def get_description(self):
         return f"{self.name} - ${self.price} - {self.category} - {self.country_of_origin} - {self.color}"
 
 class PurchaseInfo(ABC):
@@ -82,18 +80,18 @@ class Order(PurchaseInfo):
         self.total_cost = product.price * quantity
 
     def display_info(self):
-        return f"Order: {self.product.name}, Quantity: {self.quantity}, Total cost: ${self.total_cost}"
+        return f"Заказ: {self.product.name}, Количество: {self.quantity}, Общая стоимость: ${self.total_cost}"
 
 
+
+electronics = Category("Электроника", "Устройства и гаджеты")
+garden = Category("Садоводство", "Товары для сада")
 
 smartphone1 = Smartphone("iPhone", 999, "Электроника", "Высокий", "12 Pro", "256GB", "Серебро", 5)
-smartphone2 = Smartphone("Samsung Galaxy", 899, "Электроника", "Высокий", "S21", "128GB", "Черный", 3)
-grass1 = Grass("Kentucky Bluegrass", 10, "Садоводство", "USA", "14 days", "Зеленый", 100)
+electronics.add_product(smartphone1)
 
+grass1 = Grass("Kentucky Bluegrass", 10, "Садоводство", "США", "14 дней", "Зеленый", 100)
+garden.add_product(grass1)
 
-print(str(smartphone1))
-print(str(smartphone2))
-print(str(grass1))
-
-order1 = Order(smartphone1, 2)
-print(order1.display_info())
+print(electronics.get_products())
+print(garden.get_products())
