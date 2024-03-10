@@ -2,9 +2,14 @@ from abc import ABC, abstractmethod
 
 class ObjectCreationInfoMixin:
     def __repr__(self):
-        return f"{self.__class__.__name__}('{self.name}', {self.price}, '{self.category}')"
+        return f"{self.__class__.__name__}('{self.name}', {self.price}', '{self.category}')"
 
-class Product(ABC, ObjectCreationInfoMixin):
+class Manageable(ABC):
+    @abstractmethod
+    def display_info(self):
+        pass
+
+class AbstractProduct(ABC, ObjectCreationInfoMixin):
     def __init__(self, name, price, category):
         self.name = name
         self.price = price
@@ -14,45 +19,36 @@ class Product(ABC, ObjectCreationInfoMixin):
     def get_description(self):
         pass
 
-    def __str__(self):
+    def get_category(self):
+        return self.category
+
+class Product(AbstractProduct):
+    def get_description(self):
         return f"{self.name} - ${self.price} - {self.category}"
 
-class Category:
+class Category(Manageable):
     total_categories = 0
     total_unique_products = set()
 
     def __init__(self, name: str, description: str):
         self.name = name
         self.description = description
-        self.__products = []
+        self.products = []
         Category.total_categories += 1
 
     def add_product(self, product):
         if not isinstance(product, Product):
-            raise TypeError("Можно добавлять только объекты класса Product или его наследников")
-        self.__products.append(product)
-
+            raise TypeError("Can only add instances of Product or its subclasses")
+        self.products.append(product)
 
     def get_products(self):
         products_info = ""
-        for product in self.__products:
+        for product in self.products:
             products_info += f"{product.name}, {product.price} руб. Остаток: {product.quantity} шт.\n"
         return products_info
 
-
-
-class Smartphone(Product):
-    def __init__(self, name, price, category, performance, model, memory, color, quantity):
-        super().__init__(name, price, category)
-        self.performance = performance
-        self.model = model
-        self.color = color
-        self.memory = memory
-        self.quantity = quantity
-
-    def get_description(self):
-        return f"{self.name} - ${self.price} - {self.category} - {self.model} - {self.color}"
-
+    def display_info(self):
+        return f"Category '{self.name}' info displayed."
 
 class Grass(Product):
     def __init__(self, name, price, category, country_of_origin, germination_period, color, quantity):
@@ -65,33 +61,29 @@ class Grass(Product):
     def get_description(self):
         return f"{self.name} - ${self.price} - {self.category} - {self.country_of_origin} - {self.color}"
 
-class PurchaseInfo(ABC):
+class Order(Manageable):
     def __init__(self, product, quantity):
+        if not isinstance(product, Product):
+            raise TypeError("Order can only add instances of Product")
+        if quantity <= 0:
+            raise ValueError("Quantity must be greater than zero")
+
         self.product = product
         self.quantity = quantity
-
-    @abstractmethod
-    def display_info(self):
-        pass
-
-class Order(PurchaseInfo):
-    def __init__(self, product, quantity):
-        super().__init__(product, quantity)
-        self.total_cost = product.price * quantity
+        self.total_cost = self.product.price * quantity
 
     def display_info(self):
-        return f"Заказ: {self.product.name}, Количество: {self.quantity}, Общая стоимость: ${self.total_cost}"
+        return f"Order for '{self.product.name}' info displayed."
 
 
+electronics = Category("Electronics", "Electronic devices")
+lawn = Category("Gardening", "Lawn products")
 
-electronics = Category("Электроника", "Устройства и гаджеты")
-garden = Category("Садоводство", "Товары для сада")
+grass1 = Grass("Kentucky Bluegrass", 10, "Gardening", "USA", "14 days", "Green", 50)
+lawn.add_product(grass1)
 
-smartphone1 = Smartphone("iPhone", 999, "Электроника", "Высокий", "12 Pro", "256GB", "Серебро", 5)
-electronics.add_product(smartphone1)
-
-grass1 = Grass("Kentucky Bluegrass", 10, "Садоводство", "США", "14 дней", "Зеленый", 100)
-garden.add_product(grass1)
+order = Order(grass1, 5)
 
 print(electronics.get_products())
-print(garden.get_products())
+print(lawn.get_products())
+print(order.display_info())
