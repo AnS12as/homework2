@@ -20,11 +20,14 @@ class AbstractProduct(ABC, ObjectCreationInfoMixin):
         pass
 
     def get_category(self):
-        return self.category
+        pass
 
 class Product(AbstractProduct):
     def get_description(self):
         return f"{self.name} - ${self.price} - {self.category}"
+
+    def get_category(self):
+        pass
 
 class Category(Manageable):
     total_categories = 0
@@ -48,7 +51,19 @@ class Category(Manageable):
         return products_info
 
     def display_info(self):
-        return f"Category '{self.name}' info displayed."
+        return f"Category '{self.name}': {self.description}."
+
+class Smartphone(Product):
+    def __init__(self, name, price, category, performance, model, memory, color, quantity):
+        super().__init__(name, price, category)
+        self.performance = performance
+        self.model = model
+        self.memory = memory
+        self.color = color
+        self.quantity = quantity
+
+    def get_description(self):
+        return f"{self.name} {self.model} - {self.memory}, {self.color}, Performance: {self.performance}"
 
 class Grass(Product):
     def __init__(self, name, price, category, country_of_origin, germination_period, color, quantity):
@@ -73,17 +88,23 @@ class Order(Manageable):
         self.total_cost = self.product.price * quantity
 
     def display_info(self):
-        return f"Order for '{self.product.name}' info displayed."
+        return f"Order for '{self.product.name}' x {self.quantity} for ${self.total_cost}"
 
 
-electronics = Category("Electronics", "Electronic devices")
-lawn = Category("Gardening", "Lawn products")
+electronics = Category("Электроника", "Устройства и гаджеты")
+garden = Category("Садоводство", "Товары для сада")
 
-grass1 = Grass("Kentucky Bluegrass", 10, "Gardening", "USA", "14 days", "Green", 50)
-lawn.add_product(grass1)
+smartphone1 = Smartphone("iPhone", 999, "Электроника", "Высокий", "12 Pro", "256GB", "Серебро", 5)
+electronics.add_product(smartphone1)
 
-order = Order(grass1, 5)
+grass1 = Grass("Kentucky Bluegrass", 10, "Садоводство", "США", "14 дней", "Зеленый", 100)
+garden.add_product(grass1)
+
+order1 = Order(smartphone1, 2)
+print(order1.display_info())
+
+order2 = Order(grass1, 50)
+print(order2.display_info())
 
 print(electronics.get_products())
-print(lawn.get_products())
-print(order.display_info())
+print(garden.get_products())
