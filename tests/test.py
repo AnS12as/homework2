@@ -1,5 +1,5 @@
 import unittest
-from main import Category, Smartphone, Grass, Order  # Импортируйте свои классы
+from main import Category, Smartphone, Grass, Order
 
 
 class TestCategory(unittest.TestCase):

@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
 
 class ObjectCreationInfoMixin:
+    @property
     def __repr__(self):
-        return f"{self.__class__.__name__}('{self.name}', {self.price}', '{self.category}')"
+        return f"{self.__class__.__name__}('{self.name}', {self.price}, '{self.category}')"
 
 class Manageable(ABC):
     @abstractmethod
@@ -19,6 +20,7 @@ class AbstractProduct(ABC, ObjectCreationInfoMixin):
     def get_description(self):
         pass
 
+    @abstractmethod
     def get_category(self):
         pass
 
@@ -27,7 +29,7 @@ class Product(AbstractProduct):
         return f"{self.name} - ${self.price} - {self.category}"
 
     def get_category(self):
-        pass
+        return self.category
 
 class Category(Manageable):
     total_categories = 0
@@ -65,6 +67,9 @@ class Smartphone(Product):
     def get_description(self):
         return f"{self.name} {self.model} - {self.memory}, {self.color}, Performance: {self.performance}"
 
+    def get_category(self):
+        return super().get_category()
+
 class Grass(Product):
     def __init__(self, name, price, category, country_of_origin, germination_period, color, quantity):
         super().__init__(name, price, category)
@@ -75,6 +80,9 @@ class Grass(Product):
 
     def get_description(self):
         return f"{self.name} - ${self.price} - {self.category} - {self.country_of_origin} - {self.color}"
+
+    def get_category(self):
+        return super().get_category()
 
 class Order(Manageable):
     def __init__(self, product, quantity):
