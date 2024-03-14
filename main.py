@@ -1,5 +1,11 @@
 from abc import ABC, abstractmethod
 
+class ZeroQuantityError(Exception):
+    def __iniit__(self, message = "Quantity cannot be zero"):
+        self.message = message
+        super().__init__(self.message)
+
+
 class ObjectCreationInfoMixin:
     def __repr__(self):
         return f"{self.__class__.__name__}('{self.name}', {self.price}', '{self.category}')"
@@ -9,16 +15,12 @@ class Manageable(ABC):
     def display_info(self):
         pass
 
-class AbstractProduct(ABC, ObjectCreationInfoMixin):
-    def __init__(self, name, price, category):
-        self.name = name
-        self.price = price
-        self.category = category
-
+class AbstractProduct(ABC):
     @abstractmethod
     def get_description(self):
         pass
 
+    @abstractmethod
     def get_category(self):
         pass
 
@@ -27,7 +29,7 @@ class Product(AbstractProduct):
         return f"{self.name} - ${self.price} - {self.category}"
 
     def get_category(self):
-        pass
+        return self.category
 
 class Category(Manageable):
     total_categories = 0
@@ -40,9 +42,21 @@ class Category(Manageable):
         Category.total_categories += 1
 
     def add_product(self, product):
-        if not isinstance(product, Product):
-            raise TypeError("Can only add instances of Product or its subclasses")
-        self.products.append(product)
+        print(f"Adding product {product.name}")
+        try:
+            if not isinstance(product, Product):
+                raise TypeError("Can only be added instances of Product")
+            if product.quantity <= 0:
+                raise ZeroQuantityError("Cannot add product quantity less than zero")
+            self.products.append(product)
+        except ZeroQuantityError as e:
+            print(f"Error adding product {e}")
+        else:
+            print(f"Product {product.name} added successfully")
+        finally:
+            print("Product addition process completed")
+
+
 
     def get_products(self):
         products_info = ""
@@ -53,9 +67,23 @@ class Category(Manageable):
     def display_info(self):
         return f"Category '{self.name}': {self.description}."
 
-class Smartphone(Product):
+
+    def calculate_average_price(self):
+        try:
+            total_price = sum(product.price for product in self.products)
+            average_price = total_price / len(self.products)
+        except ZeroDivisionError:
+            average_price = 0
+        return average_price
+
+
+class Smartphone(Product, ObjectCreationInfoMixin):
     def __init__(self, name, price, category, performance, model, memory, color, quantity):
-        super().__init__(name, price, category)
+        if quantity <= 0:
+            raise ZeroQuantityError("Товар с нулевым количеством не может быть добавлен")
+        self.name = name
+        self.price = price
+        self.category = category
         self.performance = performance
         self.model = model
         self.memory = memory
@@ -65,9 +93,16 @@ class Smartphone(Product):
     def get_description(self):
         return f"{self.name} {self.model} - {self.memory}, {self.color}, Performance: {self.performance}"
 
-class Grass(Product):
+    def get_category(self):
+        return super().get_category()
+
+class Grass(Product, ObjectCreationInfoMixin):
     def __init__(self, name, price, category, country_of_origin, germination_period, color, quantity):
-        super().__init__(name, price, category)
+        if quantity <= 0:
+            raise ZeroQuantityError("Товар с нулевым количеством не может быть добавлен")
+        self.name = name
+        self.price = price
+        self.category = category
         self.country_of_origin = country_of_origin
         self.germination_period = germination_period
         self.color = color
@@ -76,19 +111,36 @@ class Grass(Product):
     def get_description(self):
         return f"{self.name} - ${self.price} - {self.category} - {self.country_of_origin} - {self.color}"
 
+    def get_category(self):
+        return super().get_category()
+
 class Order(Manageable):
     def __init__(self, product, quantity):
-        if not isinstance(product, Product):
-            raise TypeError("Order can only add instances of Product")
-        if quantity <= 0:
-            raise ValueError("Quantity must be greater than zero")
+        print("Processing order creation...")
+        try:
+            if not isinstance(product, Product):
+                raise TypeError("Order can only add instances of Product")
+            if quantity <= 0:
+                raise ZeroQuantityError("Order quantity cannot be zero.")
+            self.product = product
+            self.quantity = quantity
+            self.total_cost = self.product.price * quantity
+        except TypeError as e:
+            print(f"Error: {e}")
+            raise
+        except ZeroQuantityError as e:
+            print(f"Error: {e}")
+            raise
+        else:
+            print(f"Order for {product.name} x {quantity} created successfully.")
+        finally:
+            print("Order processing completed.")
 
-        self.product = product
-        self.quantity = quantity
-        self.total_cost = self.product.price * quantity
 
     def display_info(self):
         return f"Order for '{self.product.name}' x {self.quantity} for ${self.total_cost}"
+
+
 
 
 electronics = Category("Электроника", "Устройства и гаджеты")
